@@ -1,83 +1,63 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import { AnimatedList } from "@/components/magicui/animated-list";
+import Link from "next/link";
 
 import { Plant_order } from "../../../type";
-import Link from "next/link";
-import { useGetuserOrderQuery } from "../features/OrderSlice";
+import { useGetuserOrderMutation } from "../features/OrderSlice";
 
-export function AnimatedListDemo({ className }: { className?: string }) {
-  const { data: order, isLoading } = useGetuserOrderQuery();
-  console.log(order);
+export default function OrderList({ className }: { className?: string }) {
+  const [getOrders, { data: orders, isLoading, isError }] =
+    useGetuserOrderMutation(); // Destructure mutation function
   const [items, setItems] = useState<Plant_order[]>([]);
 
   useEffect(() => {
-    if (order) {
-      setItems(order);
+    // Trigger the mutation on component mount
+    getOrders();
+  }, [getOrders]);
+
+  useEffect(() => {
+    if (orders) {
+      setItems(orders);
     }
-  }, [order]);
+  }, [orders]);
 
   return (
-    <div
-      className={cn(
-        "relative flex h-[700px] w-full flex-col p-6 overflow-hidden rounded-lg border bg-background md:shadow-xl",
-        className
-      )}
-    >
-      {!isLoading && items.length > 0 ? (
-        <AnimatedList>
+    <div className={`p-6 rounded-lg border bg-background ${className}`}>
+      <h2 className="text-2xl font-bold mb-4">Order List</h2>
+      {isLoading ? (
+        <p>Loading orders...</p>
+      ) : isError ? (
+        <p>Failed to load orders.</p>
+      ) : items.length > 0 ? (
+        <ul className="space-y-4">
           {items.map((item, idx) => (
-            <Notification {...item} key={idx} />
+            <OrderItem key={idx} {...item} />
           ))}
-        </AnimatedList>
+        </ul>
       ) : (
-        <p>No notifications to display</p>
+        <p>No orders to display</p>
       )}
     </div>
   );
 }
 
-const Notification = ({
-  User_name,
-  Orderid,
-  Addresss,
-  plants,
-}: Plant_order) => {
+const OrderItem = ({ User_name, Orderid, Addresss, plants }: Plant_order) => {
+  const AllTree = plants.reduce((acc, item) => item.quantity + acc, 0);
   return (
-    <figure
-      className={cn(
-        "relative mx-auto min-h-fit w-full max-w-[400px] cursor-pointer overflow-hidden rounded-2xl p-4",
-        // animation styles
-        "transition-all duration-200 ease-in-out hover:scale-[103%]",
-        // light styles
-        "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
-        // dark styles
-        "transform-gpu dark:bg-transparent dark:backdrop-blur-md dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]"
-      )}
-    >
-      <div className="flex flex-row items-center gap-3">
-        <Link href={`/OrderDetails/${plants[0].UserId}`}>
-          <div
-            className="flex size-10 items-center justify-center rounded-2xl"
-            style={{
-              backgroundColor: "#fbbf24",
-            }}
-          >
-            <span className="text-lg">{plants.length}</span>
+    <li className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+      <Link href={`/OrderDetails/${plants[0].UserId}`} className="block">
+        <div className="flex items-center space-x-4">
+          <div className="bg-yellow-400 text-white rounded-full w-12 h-12 flex items-center justify-center text-lg font-bold">
+            {AllTree}
           </div>
-          <div className="flex flex-col overflow-hidden">
-            <figcaption className="flex flex-row items-center whitespace-pre text-lg font-medium dark:text-white ">
-              <span className="text-sm sm:text-lg">{User_name}</span>
-              <span className="mx-1">·</span>
-              <span className="text-xs text-gray-500">{Orderid}</span>
-            </figcaption>
-            <p className="text-sm font-normal dark:text-white/60">
-              {Addresss.email}
-            </p>
+          <div>
+            <h3 className="text-lg font-semibold">{User_name}</h3>
+            <p className="text-sm text-gray-500">Order ID: {Orderid}</p>
+            <p className="text-sm text-gray-500">{Addresss.email}</p>
           </div>
-        </Link>
-      </div>
-    </figure>
+        </div>
+      </Link>
+    </li>
   );
 };

@@ -8,8 +8,8 @@ export const OrderApi = createApi({
   tagTypes: ["Mytree"],
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   endpoints: (builder) => ({
-    getuserOrder: builder.query<Plant_order[], void>({
-      query: () => `/Order`,
+    getuserOrder: builder.mutation<Plant_order[], void>({
+      query: () => ({ url: `/Order`, method: "POST" }),
     }),
     Fetch_my_tree: builder.query<IPlantProfile[], string>({
       query: (userId) => ({
@@ -35,7 +35,7 @@ export const OrderApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-  useGetuserOrderQuery,
+  useGetuserOrderMutation,
   useFetch_my_treeQuery,
   useUpdate_my_treeMutation,
 } = OrderApi;

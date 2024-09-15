@@ -13,14 +13,6 @@ const FetchTreesPage = ({ params }: { params: { id: string } }) => {
     [key: string]: number;
   }>({});
   const { data: trees, isLoading, isError } = useFetch_my_treeQuery(params.id);
-  // useEffect(() => {
-  //   const handleFetchTrees = async () => {
-  //     if (params.id) {
-  //       await fetchMyTree(params.id); // Trigger the mutation
-  //     }
-  //   };
-  //   handleFetchTrees();
-  // }, [params.id, fetchMyTree]);
 
   const handleStatusChange = async (treeId: string, status: number) => {
     try {
