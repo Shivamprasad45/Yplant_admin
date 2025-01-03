@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 export interface TreeCart {
   UserId: string;
   Plant_id: string;
@@ -37,4 +38,34 @@ export interface IPlantProfile {
   name: string;
   age: number;
   status: number;
+}
+
+export interface IUser {
+  _id: ObjectId; // ObjectId from MongoDB
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string;
+  role?: string;
+  image?: string;
+  authProviderId?: string;
+}
+
+export interface Plant_coords {
+  verifed: boolean;
+  _id: ObjectId; // ObjectId from MongoDB
+  find_id: string;
+  UserId: string;
+  Plant_id: string;
+  commonName: string;
+  description: string;
+  long: number;
+  late: number;
+  imageURL: string;
+  Plant_Addresses: string;
+  subscription: any;
+  lastWeatherState: any[];
+  bio?: string;
+  name?: string;
+  relation?: string; // Array of weather states
 }

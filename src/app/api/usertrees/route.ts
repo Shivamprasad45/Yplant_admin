@@ -22,7 +22,6 @@ export async function PUT(req: NextRequest) {
   try {
     const { findtree_id, status } = await req.json();
 
-    console.log(findtree_id, status, "all");
     await Mytree.findOneAndUpdate(
       { findtree_id: findtree_id },
       { status: status }
