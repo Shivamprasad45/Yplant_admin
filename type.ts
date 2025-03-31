@@ -38,6 +38,7 @@ export interface IPlantProfile {
   name: string;
   age: number;
   status: number;
+  Free?: boolean;
 }
 
 export interface IUser {
