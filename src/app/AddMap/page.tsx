@@ -1,8 +1,7 @@
 "use client";
 
-import type React from "react";
+import { Suspense, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,11 +12,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
-const LocationComponent = dynamic(
-  () => import("./Map"),
-  { ssr: false } // Disable server-side rendering for this component
-);
+import { useRouter } from "next/navigation";
+const LocationComponent = dynamic(() => import("./Map"), { ssr: false });
 
 import { initialLocationData, type LocationData } from "./Map";
 import { useGetOneTreeQuery, useUpdateTreeMutation } from "../features/Planted";
@@ -34,76 +30,70 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const Free_clam = () => {
-  const searchParams = useSearchParams();
-  const imageSelector = useSelector(selectImageURL);
+const LoadingComponent = () => (
+  <div className="flex justify-center items-center min-h-screen">
+    <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+    <span className="ml-2">Loading...</span>
+  </div>
+);
 
-  // Extract query parameters
-  const plantId = searchParams.get("plantid");
-  const findId = searchParams.get("findid");
+const FreeClaimContent = () => {
+  const [plantId, setPlantId] = useState<string | null>(null);
+  const [findId, setFindId] = useState<string | null>(null);
+  const imageSelector = useSelector(selectImageURL);
   const router = useRouter();
+
+  useEffect(() => {
+    // Client-side parameter parsing
+    const params = new URLSearchParams(window.location.search);
+    setPlantId(params.get("plantid"));
+    setFindId(params.get("findid"));
+  }, []);
 
   const { data, isLoading: isLoadingTree } = useGetOneTreeQuery({
     findid: findId,
     plantId: plantId,
   });
 
-  const [update, { isLoading: isUpdating, isSuccess }] =
-    useUpdateTreeMutation();
+  const [update, { isLoading: isUpdating }] = useUpdateTreeMutation();
 
-  // Form state
   const [location, setLocation] = useState<LocationData>(initialLocationData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [submissionComplete, setSubmissionComplete] = useState(false);
 
-  // Handle location data from LocationComponent
-  const handleLocationChange = (locationData: LocationData, url: string) => {
+  const handleLocationChange = (locationData: LocationData) => {
     setLocation(locationData);
-
-    // Clear any previous error for location
     if (errors.location) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.location;
-        return newErrors;
-      });
+      setErrors((prev) => ({ ...prev, location: "" }));
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
     if (!location.lat || !location.lng) {
       newErrors.location = "Please allow location access when uploading photo";
     }
-
     if (!imageSelector) {
       newErrors.image = "Please upload a photo of your planted tree";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) {
-      // Show toast for validation errors
       toast.error("Please fix the errors before submitting");
       return;
     }
-
-    // Show confirmation dialog
     setShowConfirmDialog(true);
   };
 
   const confirmSubmission = async () => {
     setShowConfirmDialog(false);
     setIsSubmitting(true);
-
     try {
       await update({
         findid: findId,
@@ -113,8 +103,6 @@ const Free_clam = () => {
         ImageURL: imageSelector,
         CommanName: data?.name || "",
       }).unwrap();
-
-      // Show success message
       toast.success("Tree claimed successfully!");
       setSubmissionComplete(true);
     } catch (error) {
@@ -125,15 +113,6 @@ const Free_clam = () => {
     }
   };
 
-  const handleGoBack = () => {
-    router.back();
-  };
-
-  const handleGoToHome = () => {
-    router.push("/Planted");
-  };
-
-  // If submission is complete, show success screen
   if (submissionComplete) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -153,7 +132,7 @@ const Free_clam = () => {
               planted trees in your dashboard.
             </p>
             <Button
-              onClick={handleGoToHome}
+              onClick={() => router.push("/Planted")}
               className="bg-green-600 hover:bg-green-700"
             >
               Go to Dashboard
@@ -169,7 +148,7 @@ const Free_clam = () => {
       <Button
         variant="ghost"
         className="mb-4 flex items-center gap-1"
-        onClick={handleGoBack}
+        onClick={() => router.back()}
       >
         <ArrowLeft className="h-4 w-4" /> Back
       </Button>
@@ -200,13 +179,12 @@ const Free_clam = () => {
           </CardContent>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Tree Information */}
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row gap-4 items-start mb-6 bg-green-50/50 p-4 rounded-lg">
                 {data?.imageUrl && (
                   <div className="relative w-24 h-24 rounded-md overflow-hidden border">
                     <Image
-                      src={data.imageUrl || "/placeholder.svg"}
+                      src={data.imageUrl}
                       alt={data?.name || "Tree image"}
                       fill
                       className="object-cover"
@@ -224,7 +202,6 @@ const Free_clam = () => {
                 </div>
               </div>
 
-              {/* Location component that handles image upload and location fetching */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-green-600" />
@@ -283,7 +260,6 @@ const Free_clam = () => {
         )}
       </Card>
 
-      {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
@@ -322,4 +298,10 @@ const Free_clam = () => {
   );
 };
 
-export default Free_clam;
+const FreeClaimPage = () => (
+  <Suspense fallback={<LoadingComponent />}>
+    <FreeClaimContent />
+  </Suspense>
+);
+
+export default FreeClaimPage;
