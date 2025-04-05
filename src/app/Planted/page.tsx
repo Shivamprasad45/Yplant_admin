@@ -249,7 +249,13 @@ const TreeCard = ({ item }: { item: IPlantProfile }) => {
     >
       {item.imageUrl && (
         <div className="relative aspect-video overflow-hidden">
-          <Link href={item.status === 0 ? `/Addmap/${item.Plaintid}` : "#"}>
+          <Link
+            href={
+              item.status === 0
+                ? `/AddMap?plantid=${item.Plaintid}&findid=${item.findtree_id}`
+                : "#"
+            }
+          >
             <img
               src={item.imageUrl || "/placeholder.svg"}
               alt={item.name}
@@ -320,11 +326,11 @@ const EmptyState = ({ category }: { category: string }) => (
 const getStatusLabel = (status: string) => {
   switch (status) {
     case "0":
-      return "Planted";
+      return "Pending";
     case "1":
-      return "Growing";
+      return "Shipping";
     case "2":
-      return "Matured";
+      return "Planted";
     case "free":
       return "Free";
     default:

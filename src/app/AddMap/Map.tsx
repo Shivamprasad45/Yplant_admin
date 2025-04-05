@@ -1,5 +1,14 @@
+"use client";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import Camera from "./Camra";
+import { useDispatch } from "react-redux";
+import { setURL } from "../features/ImageSlice";
 
+// Location interface
 export interface LocationData {
   lat: number | null;
   lng: number | null;
@@ -113,7 +122,7 @@ export const getCurrentLocation = async (): Promise<LocationData> => {
           console.error("Error fetching address:", error);
           const errorLocationData: LocationData = {
             lat: lat,
-            lng: null,
+            lng: lng,
             state: "Unknown",
             district: "Unknown",
             locality: "Unknown",
@@ -140,3 +149,114 @@ export const getCurrentLocation = async (): Promise<LocationData> => {
     );
   });
 };
+
+const LocationComponent = ({
+  onLocationChange,
+}: {
+  onLocationChange: (location: LocationData, Url: string) => void;
+}) => {
+  const [imageUrl, setImageUrl] = useState("");
+  const [location, setLocation] = useState<LocationData>(initialLocationData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const dispatch = useDispatch();
+  // Handle image selection from camera
+  const handleImageSelected = async (url: string) => {
+    setImageUrl(url);
+    dispatch(setURL(url));
+    // Clear any previous error for imageUrl
+    if (errors.imageUrl) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.imageUrl;
+        return newErrors;
+      });
+    }
+
+    // Fetch location when image is uploaded
+    setIsLoading(true);
+    try {
+      const locationData = await getCurrentLocation();
+      setLocation(locationData);
+      onLocationChange(locationData, imageUrl); // Pass location data to parent component
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      toast.error("Failed to fetch location. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card className="w-full mb-6">
+      <CardHeader className="bg-green-50">
+        <CardTitle className="text-green-700">Photo & Location</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload Photo Proof
+          </label>
+          <Camera onImageSelected={handleImageSelected} />
+
+          {imageUrl && (
+            <div className="mt-4">
+              <p className="text-sm text-green-600 mb-2">
+                Image uploaded successfully!
+              </p>
+              <div className="relative w-full h-32 bg-gray-100 rounded-md overflow-hidden">
+                <img
+                  src={imageUrl}
+                  alt="Uploaded proof"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+
+          {errors.imageUrl && (
+            <p className="text-sm text-red-500 mt-1">{errors.imageUrl}</p>
+          )}
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        ) : (
+          location.lat && (
+            <div className="mt-4 p-4 bg-green-50 rounded-md">
+              <h3 className="font-medium text-green-700 mb-2">
+                Location Details
+              </h3>
+              <div className="space-y-1 text-sm">
+                <p>
+                  <span className="font-medium">Address:</span>{" "}
+                  {location.fullAddress}
+                </p>
+                <p>
+                  <span className="font-medium">District:</span>{" "}
+                  {location.district}
+                </p>
+                <p>
+                  <span className="font-medium">State:</span> {location.state}
+                </p>
+                <p>
+                  <span className="font-medium">Country:</span>{" "}
+                  {location.country}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Coordinates: {location.lat}, {location.lng}
+                </p>
+              </div>
+            </div>
+          )
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default LocationComponent;

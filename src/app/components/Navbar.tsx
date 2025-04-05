@@ -35,10 +35,10 @@ const Navbar = () => {
                 All users
               </Link>
               <Link
-                href="/services"
+                href="/Planted"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
               >
-                Services
+                Planted
               </Link>
               <Link
                 href="/contact"

@@ -1,3 +1,4 @@
+import { ImageSlice } from "@/app/features/ImageSlice";
 import { OrderApi } from "@/app/features/OrderSlice";
 import { PlantApi } from "@/app/features/Planted";
 import { UserApi } from "@/app/features/users";
@@ -9,6 +10,7 @@ export const store = configureStore({
     [OrderApi.reducerPath]: OrderApi.reducer,
     [UserApi.reducerPath]: UserApi.reducer,
     [PlantApi.reducerPath]: PlantApi.reducer,
+    Image: ImageSlice.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>

@@ -64,7 +64,7 @@ const Plants_coordinate_Schema = new Schema({
     required: false, // Preserved
   },
   verifed: {
-    default: false,
+    default: true,
     type: Boolean,
     required: false, // Added
   },
