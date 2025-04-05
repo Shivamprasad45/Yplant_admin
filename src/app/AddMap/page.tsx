@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import LocationComponent, {
-  initialLocationData,
-  type LocationData,
-} from "./Map";
+const LocationComponent = dynamic(
+  () => import("./Map"),
+  { ssr: false } // Disable server-side rendering for this component
+);
+
+import { initialLocationData, type LocationData } from "./Map";
 import { useGetOneTreeQuery, useUpdateTreeMutation } from "../features/Planted";
 import Image from "next/image";
 import { useSelector } from "react-redux";
