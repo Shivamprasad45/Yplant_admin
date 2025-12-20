@@ -54,7 +54,7 @@ const OrderItem = ({ User_name, Orderid, Addresss, plants }: Plant_order) => {
           <div>
             <h3 className="text-lg font-semibold">{User_name}</h3>
             <p className="text-sm text-gray-500">Order ID: {Orderid}</p>
-            <p className="text-sm text-gray-500">{Addresss.email}</p>
+            <p className="text-sm text-gray-500">{Addresss?.email }</p>
           </div>
         </div>
       </Link>
