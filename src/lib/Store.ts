@@ -5,6 +5,7 @@ import { ProductApi } from "@/app/features/ProductAdd";
 import { UserApi } from "@/app/features/users";
 import { BannerApi } from "@/app/features/BannerSlice";
 import { BlogApi } from "@/app/features/BlogSlice";
+import { AnalyticsApi } from "@/app/features/AnalyticsSlice";
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
@@ -16,6 +17,7 @@ export const store = configureStore({
     [ProductApi.reducerPath]: ProductApi.reducer,
     [BannerApi.reducerPath]: BannerApi.reducer,
     [BlogApi.reducerPath]: BlogApi.reducer,
+    [AnalyticsApi.reducerPath]: AnalyticsApi.reducer,
     Image: ImageSlice.reducer,
   },
 
@@ -26,7 +28,8 @@ export const store = configureStore({
       PlantApi.middleware,
       ProductApi.middleware,
       BannerApi.middleware,
-      BlogApi.middleware
+      BlogApi.middleware,
+      AnalyticsApi.middleware
     ),
 });
 setupListeners(store.dispatch);

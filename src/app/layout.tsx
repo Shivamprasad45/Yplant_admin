@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/lib/Provider";
 import Navbar from "./components/Navbar";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         <div className="">
           <Navbar />
+          {/* <AnalyticsTracker /> */}
         </div>
         <Providers>{children}</Providers>
       </body>

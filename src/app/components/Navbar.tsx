@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Image,
   FileText,
+  BarChart,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -36,6 +37,11 @@ const Navbar = () => {
       name: "Dashboard",
       href: "/",
       icon: Home,
+    },
+    {
+      name: "Analytics",
+      href: "/analytics",
+      icon: BarChart,
     },
     {
       name: "Products",
