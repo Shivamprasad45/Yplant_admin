@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 import { Camera as CameraIcon, Upload, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -19,35 +20,36 @@ const Camera: React.FC<CameraProps> = ({ onImageSelected }) => {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
+    const startCamera = async () => {
+      try {
+        const constraints = {
+          video: {
+            facingMode: cameraFacing,
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        };
+
+        const mediaStream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        );
+        setStream(mediaStream);
+        if (videoRef.current) videoRef.current.srcObject = mediaStream;
+      } catch (err) {
+        console.error("Camera error:", err);
+        toast.error("Camera access denied");
+      }
+    };
+
     startCamera();
     return () => {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameraFacing]);
-
-  const startCamera = async () => {
-    try {
-      const constraints = {
-        video: {
-          facingMode: cameraFacing,
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      };
-
-      const mediaStream = await navigator.mediaDevices.getUserMedia(
-        constraints
-      );
-      setStream(mediaStream);
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
-    } catch (err) {
-      console.error("Camera error:", err);
-      toast.error("Camera access denied");
-    }
-  };
 
   const flipCamera = () => {
     if (stream) stream.getTracks().forEach((track) => track.stop());
@@ -130,10 +132,11 @@ const Camera: React.FC<CameraProps> = ({ onImageSelected }) => {
             }}
           />
         ) : (
-          <img
+          <Image
             src={capturedImageUrl}
             alt="Captured"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
         )}
       </div>

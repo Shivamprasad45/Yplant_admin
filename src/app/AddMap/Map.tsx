@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -210,10 +211,11 @@ const LocationComponent = ({
                 Image uploaded successfully!
               </p>
               <div className="relative w-full h-32 bg-gray-100 rounded-md overflow-hidden">
-                <img
+                <Image
                   src={imageUrl}
                   alt="Uploaded proof"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
             </div>

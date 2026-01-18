@@ -2,6 +2,7 @@
 
 import { useGetAlluserMutation } from "@/app/features/users";
 import React from "react";
+import Image from "next/image";
 import { Loader2, AlertCircle, User } from "lucide-react";
 import { IUser } from "../../../../type";
 import Link from "next/link";
@@ -41,10 +42,12 @@ const Users = () => {
               <div className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow duration-300">
                 <div className="flex items-center mb-4">
                   {user.image ? (
-                    <img
+                    <Image
                       src={user.image}
                       alt={`${user.firstName} ${user.lastName}`}
-                      className="w-12 h-12 rounded-full mr-4"
+                      width={48}
+                      height={48}
+                      className="rounded-full mr-4"
                     />
                   ) : (
                     <User className="w-12 h-12 text-gray-400 bg-gray-200 rounded-full p-2 mr-4" />
